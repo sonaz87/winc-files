@@ -4,18 +4,26 @@ __human_name__ = "files"
 import os
 import shutil
 import zipfile
-import pathlib
+from pathlib import Path
+
+def get_files_path():
+    #assuming that we are either in the files directory or its parent directory
+    current_dir = Path.cwd()
+    if current_dir.name != 'files':
+        current_dir = Path(current_dir, 'files')
+    return current_dir
+
 
 def clean_cache():
-    current_dir = os.getcwd()
-    cache_dir = current_dir + '\\files\cache'
+    files_dir = get_files_path()
+    cache_dir = Path(files_dir, 'cache')
     print(cache_dir)
-    if os.path.exists(cache_dir):
+    if cache_dir.is_dir():
         for item in os.listdir(cache_dir):
-            if os.path.isfile(cache_dir +"\\"+ item):
-                os.remove(cache_dir +"\\"+ item)
+            if Path(cache_dir, item).is_file():
+                os.remove(Path(cache_dir, item))
             else:
-                shutil.rmtree(cache_dir +"\\"+ item)
+                shutil.rmtree(Path(cache_dir, item))
     else:
         os.mkdir(cache_dir)
 
@@ -26,9 +34,9 @@ def cache_zip(zip_file_path, cache_path):
         zip.extractall(cache_path)
 
 def cached_files():
-    path = "C:\\Users\\majer\\Documents\\Winc\\files\\cache"
-    p = pathlib.Path(path)
-    pre_result = list(p.iterdir())
+    files_dir = get_files_path()
+    cache_dir = Path(files_dir, 'cache')
+    pre_result = list(cache_dir.iterdir())
     result = []
     for item in pre_result:
         result.append(str(item))
@@ -43,19 +51,14 @@ def find_password(file_list):
                 password_path = path
                 break
     
-    password_text = pathlib.Path(password_path).read_text()
+    password_text = Path(password_path).read_text()
     password_text_list = password_text.split("\n")
     for item in password_text_list:
         if 'pass' in item: 
             password_string = item
     return password_string.split(" ")[1]
 
-"""
-clean_cache()
-zip_file_path = "C:\\Users\\majer\\Documents\\Winc\\files\\data.zip"
-cache_path = "C:\\Users\\majer\\Documents\\Winc\\files\\cache"
-cache_zip(zip_file_path, cache_path)
-file_path_list = (cached_files())
-password = find_password(file_path_list)
-print(password)
-"""
+
+
+
+
